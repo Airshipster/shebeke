@@ -1506,6 +1506,8 @@ const ui = document.getElementById('ui');
 const uiClose = document.getElementById('uiClose');
 const uiOpen = document.getElementById('uiOpen');
 const fullscreenToggle = document.getElementById('fullscreenToggle');
+const isIPhone = /iPhone|iPod/i.test(navigator.userAgent);
+if (isIPhone) fullscreenToggle.hidden = true;
 
 let W = 0, H = 0, DPR = 1;
 let trail = [];
@@ -2208,6 +2210,7 @@ function isFullscreen() {
 }
 
 function updateFullscreenButton() {
+  if (isIPhone) return;
   const active = isFullscreen();
   fullscreenToggle.textContent = active ? '×' : '⛶';
   fullscreenToggle.setAttribute('aria-label', active ? 'Exit fullscreen' : 'Enter fullscreen');
