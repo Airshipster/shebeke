@@ -1,0 +1,16 @@
+Shebeke: Digital Glass
+
+Copyright (c) 2026, project author.
+
+This repository contains an original interactive digital-art implementation
+of a shebeke-inspired visual system, including its HTML, CSS, JavaScript,
+WebGL shaders, SVG pattern, documentation, and project configuration.
+
+Permission to view and run the demonstration is granted. Reuse, redistribution,
+adaptation, publication, or inclusion in another project requires prior notice
+to and contact with the project author. Please contact the author before using
+the work beyond viewing or running the public demonstration.
+
+The bundled audio track may be subject to separate rights. Do not redistribute
+or reuse the audio without confirming the rights of its respective author or
+rights holder.

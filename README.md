@@ -1,16 +1,20 @@
-# Shebeke Audio Contour
+# Shebeke: Digital Glass
 
-Interactive WebGL shebeke background that reacts to:
+Интерактивная digital-art инсталляция, вдохновлённая шекинским искусством шебеке — орнаментальными решётками и витражами из небольших фрагментов цветного стекла. В этой интерпретации геометрический узор дворцового окна превращается в живую световую поверхность: цвет, мерцание и частицы реагируют на музыку, микрофон и движение перед камерой.
 
-- uploaded audio files;
-- microphone input;
-- camera motion;
-- motion contours in `index.html` and `final-contours.html`.
+Шебеке переводится как «сеть» или «решётка». Работа сохраняет идею многослойного орнамента, но переносит её из архитектурного пространства в экранное и звуковое: зритель становится источником движения, а аудио — источником света.
 
-## Pages
+## Демонстрация
 
-- `index.html` - default GitHub Pages entry, contour-reactive version.
-- `final-contours.html` - same contour-reactive version.
-- `final.html` - earlier version with motion glow points.
+Открыть инсталляцию: [GitHub Pages](https://airshipster.github.io/shebeke/)
 
-Camera and microphone access require browser permission and generally work best from `https://` URLs such as GitHub Pages.
+По умолчанию доступен трек Алихана Мамедова; через кнопку загрузки можно выбрать собственный аудиофайл. Камера и микрофон включаются только из панели управления и требуют разрешения браузера.
+
+## Файлы
+
+- `index.html` — основная контурная версия для GitHub Pages.
+- `final-contours.html` — контурная версия с теми же настройками.
+- `final.html` — альтернативная версия световой кометы.
+- `Alihan SAMEDOV SARI GELİN - Alihan Samedov (128k).mp3` — встроенный аудиотрек.
+
+Проект не использует внешние JavaScript-библиотеки: визуализация построена на WebGL, SVG и Web Audio API браузера.

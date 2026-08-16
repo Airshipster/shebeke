@@ -8,7 +8,7 @@
 :root {
   --glass-opacity: 0;
   --zoom: .30;
-  --shader-brightness: 1;
+  --shader-brightness: 2;
 }
 html, body {
   margin: 0;
@@ -64,23 +64,31 @@ html, body {
   color: #d7def0;
 }
 .row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr) 88px;
   align-items: center;
   gap: 10px;
   margin: 10px 0;
 }
 .time {
-  min-width: 88px;
+  width: 88px;
   text-align: right;
   font-size: 12px;
   color: #cdd6ec;
 }
 label {
-  min-width: 128px;
+  min-width: 0;
   font-size: 13px;
 }
 input[type="range"] {
-  flex: 1;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+.row > span {
+  width: 88px;
+  text-align: right;
+  white-space: nowrap;
 }
 button {
   margin-top: 8px;
@@ -96,6 +104,10 @@ button {
 button.secondary {
   background: #2b3752;
   color: #f3f6ff;
+}
+button:disabled {
+  opacity: .65;
+  cursor: wait;
 }
 #file {
   display: none;
@@ -1359,8 +1371,8 @@ button.active {
   </div>
   <div class="row">
     <label>Яркость фона</label>
-    <input id="brightness" type="range" min="0.3" max="2.2" step="0.01" value="1">
-    <span id="brightnessVal">100%</span>
+    <input id="brightness" type="range" min="0.3" max="2.2" step="0.01" value="2">
+    <span id="brightnessVal">200%</span>
   </div>
   <div class="row">
     <label>Чувств. музыки</label>
@@ -1373,7 +1385,7 @@ button.active {
     <span id="timeVal" class="time">0:00 / 0:00</span>
   </div>
   <button id="loadAudio">Загрузить музыку</button>
-  <button id="playPause" class="secondary">Пауза музыки</button>
+  <button id="playPause" class="secondary" disabled>Загрузка музыки...</button>
   <button id="toggleMic" class="secondary">Микрофон: выкл</button>
   <button id="toggleCamera" class="secondary">Камера-движение: выкл</button>
   <button id="clear" class="secondary">Очистить след</button>
@@ -1433,6 +1445,7 @@ let analyser = null;
 let freqData = null;
 let audioEl = null;
 let audioSource = null;
+let bundledAudioPromise = null;
 let micStream = null;
 let micSource = null;
 let micEnabled = false;
@@ -1880,7 +1893,7 @@ async function loadAudioFile(file, { autoplay = true } = {}) {
     }
     audioEl = new Audio(URL.createObjectURL(file));
     audioEl.loop = true;
-    audioEl.autoplay = true;
+    audioEl.autoplay = autoplay;
     audioEl.controls = false;
     audioEl.style.display = 'none';
     audioEl.addEventListener('loadedmetadata', updateSeekUi);
@@ -1892,23 +1905,32 @@ async function loadAudioFile(file, { autoplay = true } = {}) {
     analyser.connect(audioCtx.destination);
     audioStatus.textContent = 'Музыка загружена: ' + file.name;
     playPauseBtn.textContent = autoplay ? 'Пауза музыки' : 'Старт музыки';
+    playPauseBtn.disabled = false;
     if (autoplay) await audioEl.play();
   } catch (err) {
     audioStatus.textContent = 'Ошибка аудио: ' + (err && err.message ? err.message : 'не удалось воспроизвести');
+    playPauseBtn.textContent = 'Старт музыки';
+    playPauseBtn.disabled = false;
   }
 }
 
-async function loadBundledAudio({ autoplay = false } = {}) {
-  try {
-    audioStatus.textContent = 'Загружается музыка Алихана Мамедова...';
-    const response = await fetch('Alihan%20SAMEDOV%20SARI%20GEL%C4%B0N%20-%20Alihan%20Samedov%20(128k).mp3');
-    if (!response.ok) throw new Error('не удалось загрузить встроенный трек');
-    const blob = await response.blob();
-    const file = new File([blob], 'Alihan Samedov - Sari Gelin.mp3', { type: blob.type || 'audio/mpeg' });
-    await loadAudioFile(file, { autoplay });
-  } catch (err) {
-    audioStatus.textContent = 'Не удалось загрузить встроенную музыку. Нажми «Загрузить музыку», чтобы выбрать свой файл.';
-  }
+function loadBundledAudio() {
+  if (bundledAudioPromise) return bundledAudioPromise;
+  audioStatus.textContent = 'Загружается музыка Алихана Мамедова...';
+  bundledAudioPromise = fetch('Alihan%20SAMEDOV%20SARI%20GEL%C4%B0N%20-%20Alihan%20Samedov%20(128k).mp3')
+    .then((response) => {
+      if (!response.ok) throw new Error('не удалось загрузить встроенный трек');
+      return response.blob();
+    })
+    .then((blob) => new File([blob], 'Alihan Samedov - Sari Gelin.mp3', { type: blob.type || 'audio/mpeg' }))
+    .then((file) => loadAudioFile(file, { autoplay: false }))
+    .catch(() => {
+      bundledAudioPromise = null;
+      audioStatus.textContent = 'Не удалось загрузить встроенную музыку. Нажми «Загрузить музыку», чтобы выбрать свой файл.';
+      playPauseBtn.textContent = 'Старт музыки';
+      playPauseBtn.disabled = false;
+    });
+  return bundledAudioPromise;
 }
 
 function render(now) {
@@ -2020,9 +2042,9 @@ toggleCameraBtn.addEventListener('click', () => {
 
 playPauseBtn.addEventListener('click', async () => {
   if (!audioEl) {
-    audioStatus.textContent = 'Сначала загрузи аудиофайл.';
-    return;
+    await loadBundledAudio();
   }
+  if (!audioEl) return;
   ensureAudio();
   if (audioEl.paused) {
     await audioEl.play();
