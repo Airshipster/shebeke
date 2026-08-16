@@ -4,9 +4,11 @@ Copyright (c) 2026, project author.
 
 This repository contains an interactive digital-art implementation of a
 shebeke-inspired visual system. Some visual elements and references were
-adapted from one OpenProcessing reference by Jason Labbe, profile name
-theRussetPotato. This repository does not claim those referenced portions as
-original work.
+The background particle and trail shader is adapted from an OpenProcessing
+sketch by Jason Labbe, profile name theRussetPotato. This repository does not
+claim that adapted shader architecture as original work. The shebeke SVG,
+audio, microphone, camera, and contour-motion additions are separate project
+adaptations.
 
 Permission to view and run the demonstration is granted. Reuse, redistribution,
 adaptation, publication, or inclusion in another project requires prior notice

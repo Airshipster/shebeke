@@ -15,4 +15,4 @@ The Alihan Mamedov track starts automatically when the browser allows audible au
 - `final.html` - alternate light-comet version.
 - `Alihan SAMEDOV SARI GELIN - Alihan Samedov (128k).mp3` - bundled audio track.
 
-The project does not use external JavaScript libraries; the visualization uses browser WebGL, SVG, and Web Audio APIs. One visual reference is the OpenProcessing sketch by Jason Labbe, profile name theRussetPotato. The current implementation is a separate adaptation with its own shebeke SVG, audio, microphone, and camera systems.
+The project does not use external JavaScript libraries; the visualization uses browser WebGL, SVG, and Web Audio APIs. The background particle and trail shader is adapted from the OpenProcessing sketch by Jason Labbe, profile name theRussetPotato. The current implementation extends that shader architecture with its own shebeke SVG, audio, microphone, and camera systems.
