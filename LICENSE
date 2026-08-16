@@ -4,10 +4,9 @@ Copyright (c) 2026, project author.
 
 This repository contains an interactive digital-art implementation of a
 shebeke-inspired visual system. Some visual elements and references were
-adapted from OpenProcessing, author Jason Labbe, profile name theRussetPotato.
-The source reference is the
-OpenProcessing sketch "Magical trail shader" (sketch 835887). This repository
-does not claim those adapted portions as original work.
+adapted from one OpenProcessing reference by Jason Labbe, profile name
+theRussetPotato. This repository does not claim those referenced portions as
+original work.
 
 Permission to view and run the demonstration is granted. Reuse, redistribution,
 adaptation, publication, or inclusion in another project requires prior notice
