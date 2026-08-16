@@ -18,6 +18,13 @@ html, body {
   background: #050607;
   font-family: system-ui, -apple-system, Segoe UI, Arial, sans-serif;
 }
+html.ios-immersive #ui,
+html.ios-immersive #uiOpen {
+  display: none !important;
+}
+html.ios-immersive #fullscreenToggle {
+  z-index: 40;
+}
 #shaderCanvas {
   position: fixed;
   inset: 0;
@@ -2237,7 +2244,7 @@ uiOpen.addEventListener('click', () => {
 });
 
 function isFullscreen() {
-  return Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+  return Boolean(document.fullscreenElement || document.webkitFullscreenElement || document.documentElement.classList.contains('ios-immersive'));
 }
 
 function updateFullscreenButton() {
@@ -2249,15 +2256,18 @@ function updateFullscreenButton() {
 
 fullscreenToggle.addEventListener('click', async () => {
   try {
-    if (isFullscreen()) {
+    if (document.documentElement.classList.contains('ios-immersive')) {
+      document.documentElement.classList.remove('ios-immersive');
+    } else if (document.fullscreenElement || document.webkitFullscreenElement) {
       const exit = document.exitFullscreen || document.webkitExitFullscreen;
       if (exit) await exit.call(document);
     } else {
       const request = document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen;
       if (request) await request.call(document.documentElement);
+      else document.documentElement.classList.add('ios-immersive');
     }
   } catch (err) {
-    fullscreenToggle.title = 'Fullscreen is not available in this browser';
+    document.documentElement.classList.add('ios-immersive');
   }
   updateFullscreenButton();
 });
