@@ -1504,6 +1504,8 @@ let bundledAudioPromise = null;
 let audioNeedsGesture = false;
 let micStream = null;
 let micSource = null;
+let micAnalyser = null;
+let micFreqData = null;
 let micEnabled = false;
 let smLow = 0, smMid = 0, smHigh = 0;
 let lastBeat = 0;
@@ -1865,7 +1867,12 @@ async function enableMic() {
       }
     });
     micSource = audioCtx.createMediaStreamSource(micStream);
-    micSource.connect(analyser);
+    micAnalyser = audioCtx.createAnalyser();
+    micAnalyser.fftSize = 1024;
+    micAnalyser.smoothingTimeConstant = 0.82;
+    micFreqData = new Uint8Array(micAnalyser.frequencyBinCount);
+    // Keep microphone analysis off the output graph to prevent acoustic feedback.
+    micSource.connect(micAnalyser);
     micEnabled = true;
     toggleMicBtn.textContent = 'Microphone: on';
     toggleMicBtn.classList.add('active');
@@ -1881,6 +1888,8 @@ function disableMic() {
     try { micSource.disconnect(); } catch(e) {}
     micSource = null;
   }
+  micAnalyser = null;
+  micFreqData = null;
   if (micStream) {
     micStream.getTracks().forEach(track => track.stop());
     micStream = null;
@@ -1892,26 +1901,32 @@ function disableMic() {
 }
 
 function updateAudio() {
-  if (!analyser || !freqData) {
+  if ((!analyser || !freqData) && (!micAnalyser || !micFreqData)) {
     smLow *= .92; smMid *= .92; smHigh *= .92;
     return;
   }
-  analyser.getByteFrequencyData(freqData);
+  if (analyser && freqData) analyser.getByteFrequencyData(freqData);
+  if (micAnalyser && micFreqData) micAnalyser.getByteFrequencyData(micFreqData);
   const nyquist = audioCtx.sampleRate / 2;
-  const binHz = nyquist / freqData.length;
+  const binHz = nyquist / (freqData ? freqData.length : micFreqData.length);
 
-  function avg(f0, f1) {
+  function avg(f0, f1, data) {
+    if (!data) return 0;
     const i0 = Math.max(0, Math.floor(f0 / binHz));
-    const i1 = Math.min(freqData.length - 1, Math.ceil(f1 / binHz));
+    const i1 = Math.min(data.length - 1, Math.ceil(f1 / binHz));
     let s = 0, c = 0;
-    for (let i = i0; i <= i1; i++) { s += freqData[i]; c++; }
+    for (let i = i0; i <= i1; i++) { s += data[i]; c++; }
     return c ? s / (c * 255) : 0;
   }
 
+  function band(f0, f1) {
+    return Math.min(1, avg(f0, f1, freqData) + avg(f0, f1, micFreqData));
+  }
+
   const sens = parseFloat(audioSensitivity.value);
-  const low = Math.min(1, avg(20, 180) * sens * 1.35);
-  const mid = Math.min(1, avg(180, 2000) * sens * 1.15);
-  const high = Math.min(1, avg(2000, 8000) * sens * 1.20);
+  const low = Math.min(1, band(20, 180) * sens * 1.35);
+  const mid = Math.min(1, band(180, 2000) * sens * 1.15);
+  const high = Math.min(1, band(2000, 8000) * sens * 1.20);
   smLow += (low - smLow) * .09;
   smMid += (mid - smMid) * .09;
   smHigh += (high - smHigh) * .12;
@@ -2171,7 +2186,7 @@ uiOpen.addEventListener('click', () => {
 window.addEventListener('resize', resize);
 
 if (window.matchMedia('(max-width: 640px)').matches && zoom.value === '0.30') {
-  zoom.value = '0.10';
+  zoom.value = '0.15';
 }
 updatePatternSize();
 updateGlassOpacity();
