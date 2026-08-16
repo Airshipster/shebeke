@@ -1,17 +1,20 @@
 Shebeke: Digital Glass
 
-Copyright (c) 2026, project author.
+This repository is a composite work.
 
-This work contains:
+Copyright (c) 2026, project author, for the project-specific additions,
+including the shebeke artwork, interface, audio integration, microphone input,
+camera-motion and contour-reactive logic, and project documentation.
 
-- an adapted particle and trail shader based on a work by Jason Labbe,
-  profile name theRussetPotato, from OpenProcessing;
-- the audio recording "Alihan Samedov - Sari Gelin", whose rights belong to
-  its respective copyright holder;
-- project-specific shebeke artwork, audio integration, microphone input,
-  camera motion, and contour-reactive additions.
+The background particle and trail shader is adapted from Jason Labbe
+(theRussetPotato), published on OpenProcessing under CC BY-SA 3.0. The
+attribution and ShareAlike requirements of that license apply to that adapted
+component. See: https://creativecommons.org/licenses/by-sa/3.0/
 
-For any use, adaptation, or redistribution, contact the project author first.
-Permission must also be obtained from the respective copyright holders of
-included components, including the OpenProcessing work and the audio
-recording, and any required attribution or notices must be preserved.
+The bundled recording "Alihan Samedov - Sari Gelin" is not covered by this
+notice. Its rights remain with the relevant copyright holder.
+
+No blanket copyright or license is granted for third-party components. Before
+using, adapting, or redistributing this repository, contact the project author
+and obtain any additional permissions required from the respective rights
+holders. Preserve all required attribution and license notices.
