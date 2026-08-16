@@ -15,4 +15,4 @@ The Alihan Mamedov track starts automatically when the browser allows audible au
 - `final.html` - alternate light-comet version.
 - `Alihan SAMEDOV SARI GELIN - Alihan Samedov (128k).mp3` - bundled audio track.
 
-The project does not use external JavaScript libraries; the visualization uses browser WebGL, SVG, and Web Audio APIs. Some visual elements and references were adapted from material found on OpenProcessing. The exact original sketch URL and author were not preserved in the local context file and should be verified before reuse.
+The project does not use external JavaScript libraries; the visualization uses browser WebGL, SVG, and Web Audio APIs. Some visual elements and references were adapted from OpenProcessing, author Jason Labbe, profile name theRussetPotato. The source reference is the OpenProcessing sketch "Magical trail shader" (sketch 835887).

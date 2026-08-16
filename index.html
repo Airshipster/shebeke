@@ -68,7 +68,11 @@ html, body {
   grid-template-columns: 128px minmax(0, 1fr) 88px;
   align-items: center;
   gap: 10px;
-  margin: 10px 0;
+  min-height: 42px;
+  margin: 0;
+}
+.row + .row {
+  margin-top: 4px;
 }
 .time {
   width: 88px;
@@ -79,6 +83,7 @@ html, body {
 label {
   min-width: 0;
   font-size: 13px;
+  line-height: 1.2;
 }
 input[type="range"] {
   width: 100%;
