@@ -1358,41 +1358,41 @@ button.active {
 
 <div id="ui">
   <h1>Sheki glass audio comet</h1>
-  <p>Теперь след работает как комета: когда мышь останавливается, хвост сам догорает и исчезает. Можно загрузить музыку — фон начнёт пульсировать по басам, середине и высоким.</p>
+  <p>The trail behaves like a comet: when the pointer stops, its tail fades away. Load music to make the background pulse with bass, mid, and high frequencies.</p>
   <div class="row">
-    <label>Прозрачность стекла</label>
+    <label>Glass opacity</label>
     <input id="glassOpacity" type="range" min="0" max="1" step="0.01" value="0">
     <span id="glassVal">0%</span>
   </div>
   <div class="row">
-    <label>Зум</label>
+    <label>Zoom</label>
     <input id="zoom" type="range" min="0.12" max="1.20" step="0.01" value="0.30">
     <span id="zoomVal">30%</span>
   </div>
   <div class="row">
-    <label>Яркость фона</label>
+    <label>Background brightness</label>
     <input id="brightness" type="range" min="0.3" max="2.2" step="0.01" value="2">
     <span id="brightnessVal">200%</span>
   </div>
   <div class="row">
-    <label>Чувств. музыки</label>
+    <label>Music sensitivity</label>
     <input id="audioSensitivity" type="range" min="0" max="2.5" step="0.01" value="1">
     <span id="audioVal">100%</span>
   </div>
   <div class="row">
-    <label>Перемотка</label>
+    <label>Seek</label>
     <input id="seek" type="range" min="0" max="1000" step="1" value="0">
     <span id="timeVal" class="time">0:00 / 0:00</span>
   </div>
-  <button id="loadAudio">Загрузить музыку</button>
-  <button id="playPause" class="secondary" disabled>Загрузка музыки...</button>
-  <button id="toggleMic" class="secondary">Микрофон: выкл</button>
-  <button id="toggleCamera" class="secondary">Камера-движение: выкл</button>
-  <button id="clear" class="secondary">Очистить след</button>
-  <button id="pause" class="secondary">Пауза фона</button>
-  <button id="hide" class="secondary">Скрыть UI</button>
-  <div id="audioStatus">Музыка не загружена.</div>
-  <div id="sensorStatus">Микрофон и камера выключены.</div>
+  <button id="loadAudio">Load music</button>
+  <button id="playPause" class="secondary" disabled>Loading music...</button>
+  <button id="toggleMic" class="secondary">Microphone: off</button>
+  <button id="toggleCamera" class="secondary">Camera motion: off</button>
+  <button id="clear" class="secondary">Clear trail</button>
+  <button id="pause" class="secondary">Pause background</button>
+  <button id="hide" class="secondary">Hide UI</button>
+  <div id="audioStatus">Music is loading...</div>
+  <div id="sensorStatus">Microphone and camera are off.</div>
 </div>
 <input id="file" type="file" accept="audio/*">
 <video id="motionVideo" class="motionVideo" playsinline muted></video>
@@ -1669,12 +1669,12 @@ async function enableCameraMotion() {
     prevMotionFrame = null;
     lastMotionScan = 0;
     cameraEnabled = true;
-    toggleCameraBtn.textContent = 'Камера-движение: вкл';
+    toggleCameraBtn.textContent = 'Camera motion: on';
     toggleCameraBtn.classList.add('active');
-    updateSensorStatus('Камера подключена');
+    updateSensorStatus('Camera connected');
   } catch (err) {
     disableCameraMotion();
-    updateSensorStatus('Ошибка камеры: ' + (err && err.message ? err.message : 'доступ не получен'));
+    updateSensorStatus('Camera error: ' + (err && err.message ? err.message : 'permission denied'));
   }
 }
 
@@ -1687,7 +1687,7 @@ function disableCameraMotion() {
   motionVideo.srcObject = null;
   cameraEnabled = false;
   prevMotionFrame = null;
-  toggleCameraBtn.textContent = 'Камера-движение: выкл';
+  toggleCameraBtn.textContent = 'Camera motion: off';
   toggleCameraBtn.classList.remove('active');
   updateSensorStatus();
 }
@@ -1792,8 +1792,8 @@ function ensureAudio() {
 }
 
 function updateSensorStatus(message) {
-  const mic = micEnabled ? 'микрофон вкл' : 'микрофон выкл';
-  const cam = cameraEnabled ? 'камера-движение вкл' : 'камера-движение выкл';
+  const mic = micEnabled ? 'microphone on' : 'microphone off';
+  const cam = cameraEnabled ? 'camera motion on' : 'camera motion off';
   sensorStatus.textContent = message ? message + ' (' + mic + ', ' + cam + ')' : mic + ', ' + cam + '.';
 }
 
@@ -1810,12 +1810,12 @@ async function enableMic() {
     micSource = audioCtx.createMediaStreamSource(micStream);
     micSource.connect(analyser);
     micEnabled = true;
-    toggleMicBtn.textContent = 'Микрофон: вкл';
+    toggleMicBtn.textContent = 'Microphone: on';
     toggleMicBtn.classList.add('active');
-    updateSensorStatus('Микрофон подключен');
+    updateSensorStatus('Microphone connected');
   } catch (err) {
     disableMic();
-    updateSensorStatus('Ошибка микрофона: ' + (err && err.message ? err.message : 'доступ не получен'));
+    updateSensorStatus('Microphone error: ' + (err && err.message ? err.message : 'permission denied'));
   }
 }
 
@@ -1829,7 +1829,7 @@ function disableMic() {
     micStream = null;
   }
   micEnabled = false;
-  toggleMicBtn.textContent = 'Микрофон: выкл';
+  toggleMicBtn.textContent = 'Microphone: off';
   toggleMicBtn.classList.remove('active');
   updateSensorStatus();
 }
@@ -1903,31 +1903,31 @@ async function loadAudioFile(file, { autoplay = true } = {}) {
     audioSource = audioCtx.createMediaElementSource(audioEl);
     audioSource.connect(analyser);
     analyser.connect(audioCtx.destination);
-    audioStatus.textContent = 'Музыка загружена: ' + file.name;
-    playPauseBtn.textContent = autoplay ? 'Пауза музыки' : 'Старт музыки';
+    audioStatus.textContent = 'Music loaded: ' + file.name;
+    playPauseBtn.textContent = autoplay ? 'Pause music' : 'Start music';
     playPauseBtn.disabled = false;
     if (autoplay) await audioEl.play();
   } catch (err) {
-    audioStatus.textContent = 'Ошибка аудио: ' + (err && err.message ? err.message : 'не удалось воспроизвести');
-    playPauseBtn.textContent = 'Старт музыки';
+    audioStatus.textContent = 'Audio error: ' + (err && err.message ? err.message : 'playback failed');
+    playPauseBtn.textContent = 'Start music';
     playPauseBtn.disabled = false;
   }
 }
 
 function loadBundledAudio() {
   if (bundledAudioPromise) return bundledAudioPromise;
-  audioStatus.textContent = 'Загружается музыка Алихана Мамедова...';
+  audioStatus.textContent = 'Loading Alihan Mamedov track...';
   bundledAudioPromise = fetch('Alihan%20SAMEDOV%20SARI%20GEL%C4%B0N%20-%20Alihan%20Samedov%20(128k).mp3')
     .then((response) => {
-      if (!response.ok) throw new Error('не удалось загрузить встроенный трек');
+      if (!response.ok) throw new Error('bundled track unavailable');
       return response.blob();
     })
     .then((blob) => new File([blob], 'Alihan Samedov - Sari Gelin.mp3', { type: blob.type || 'audio/mpeg' }))
-    .then((file) => loadAudioFile(file, { autoplay: false }))
+    .then((file) => loadAudioFile(file, { autoplay: true }))
     .catch(() => {
       bundledAudioPromise = null;
-      audioStatus.textContent = 'Не удалось загрузить встроенную музыку. Нажми «Загрузить музыку», чтобы выбрать свой файл.';
-      playPauseBtn.textContent = 'Старт музыки';
+      audioStatus.textContent = 'Bundled track could not load. Use “Load music” to choose a file.';
+      playPauseBtn.textContent = 'Start music';
       playPauseBtn.disabled = false;
     });
   return bundledAudioPromise;
@@ -2024,7 +2024,7 @@ loadBundledAudio();
 
 toggleMicBtn.addEventListener('click', () => {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    updateSensorStatus('Браузер не поддерживает доступ к микрофону');
+    updateSensorStatus('This browser does not support microphone access');
     return;
   }
   if (micEnabled) disableMic();
@@ -2033,7 +2033,7 @@ toggleMicBtn.addEventListener('click', () => {
 
 toggleCameraBtn.addEventListener('click', () => {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    updateSensorStatus('Браузер не поддерживает доступ к камере');
+    updateSensorStatus('This browser does not support camera access');
     return;
   }
   if (cameraEnabled) disableCameraMotion();
@@ -2048,11 +2048,11 @@ playPauseBtn.addEventListener('click', async () => {
   ensureAudio();
   if (audioEl.paused) {
     await audioEl.play();
-    playPauseBtn.textContent = 'Пауза музыки';
+    playPauseBtn.textContent = 'Pause music';
     updateSeekUi();
   } else {
     audioEl.pause();
-    playPauseBtn.textContent = 'Старт музыки';
+    playPauseBtn.textContent = 'Start music';
     updateSeekUi();
   }
 });
@@ -2061,7 +2061,7 @@ clearBtn.addEventListener('click', () => { trail = []; particles = []; render(pe
 
 pauseBtn.addEventListener('click', () => {
   paused = !paused;
-  pauseBtn.textContent = paused ? 'Старт фона' : 'Пауза фона';
+  pauseBtn.textContent = paused ? 'Start background' : 'Pause background';
   if (!paused) {
     lastTime = performance.now();
     loop(lastTime);
@@ -2070,7 +2070,7 @@ pauseBtn.addEventListener('click', () => {
 
 hide.addEventListener('click', () => {
   ui.classList.toggle('hidden');
-  hide.textContent = ui.classList.contains('hidden') ? 'Показать UI' : 'Скрыть UI';
+  hide.textContent = ui.classList.contains('hidden') ? 'Show UI' : 'Hide UI';
 });
 
 window.addEventListener('resize', resize);
