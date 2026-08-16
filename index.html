@@ -6,8 +6,8 @@
 <title>Sheki Glass Audio Comet</title>
 <style>
 :root {
-  --glass-opacity: .72;
-  --zoom: .38;
+  --glass-opacity: 0;
+  --zoom: .30;
   --shader-brightness: 1;
 }
 html, body {
@@ -1349,13 +1349,13 @@ button.active {
   <p>Теперь камера-движение строит свечение по контурам движущейся фигуры. Музыка и микрофон продолжают пульсировать по басам, середине и высоким.</p>
   <div class="row">
     <label>Прозрачность стекла</label>
-    <input id="glassOpacity" type="range" min="0.05" max="1" step="0.01" value="0.72">
-    <span id="glassVal">72%</span>
+    <input id="glassOpacity" type="range" min="0" max="1" step="0.01" value="0">
+    <span id="glassVal">0%</span>
   </div>
   <div class="row">
     <label>Зум</label>
-    <input id="zoom" type="range" min="0.12" max="1.20" step="0.01" value="0.38">
-    <span id="zoomVal">38%</span>
+    <input id="zoom" type="range" min="0.12" max="1.20" step="0.01" value="0.30">
+    <span id="zoomVal">30%</span>
   </div>
   <div class="row">
     <label>Яркость фона</label>
@@ -1906,7 +1906,7 @@ function updateSeekUi() {
   timeVal.textContent = fmtTime(audioEl.currentTime) + ' / ' + fmtTime(audioEl.duration);
 }
 
-async function loadAudioFile(file) {
+async function loadAudioFile(file, { autoplay = true } = {}) {
   try {
     ensureAudio();
     if (audioSource) {
@@ -1930,22 +1930,22 @@ async function loadAudioFile(file) {
     audioSource = audioCtx.createMediaElementSource(audioEl);
     audioSource.connect(analyser);
     analyser.connect(audioCtx.destination);
-    await audioEl.play();
     audioStatus.textContent = 'Музыка загружена: ' + file.name;
-    playPauseBtn.textContent = 'Пауза музыки';
+    playPauseBtn.textContent = autoplay ? 'Пауза музыки' : 'Старт музыки';
+    if (autoplay) await audioEl.play();
   } catch (err) {
     audioStatus.textContent = 'Ошибка аудио: ' + (err && err.message ? err.message : 'не удалось воспроизвести');
   }
 }
 
-async function loadBundledAudio() {
+async function loadBundledAudio({ autoplay = false } = {}) {
   try {
     audioStatus.textContent = 'Загружается музыка Алихана Мамедова...';
     const response = await fetch(bundledAudioPath);
     if (!response.ok) throw new Error('не удалось загрузить встроенный трек');
     const blob = await response.blob();
     const file = new File([blob], 'Alihan Samedov - Sari Gelin.mp3', { type: blob.type || 'audio/mpeg' });
-    await loadAudioFile(file);
+    await loadAudioFile(file, { autoplay });
   } catch (err) {
     audioStatus.textContent = 'Не удалось загрузить встроенную музыку. Нажми «Загрузить музыку», чтобы выбрать свой файл.';
   }
@@ -2037,6 +2037,8 @@ fileInput.addEventListener('change', (e) => {
   if (f) loadAudioFile(f);
   fileInput.value = '';
 });
+
+loadBundledAudio();
 
 toggleMicBtn.addEventListener('click', () => {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
