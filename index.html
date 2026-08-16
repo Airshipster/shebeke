@@ -2225,9 +2225,8 @@ uiOpen.addEventListener('click', () => {
 
 window.addEventListener('resize', resize);
 
-if (window.matchMedia('(max-width: 640px)').matches && zoom.value === '0.30') {
-  zoom.value = '0.15';
-}
+// Set the initial scale per viewport; mobile browsers may restore old range values.
+zoom.value = window.matchMedia('(max-width: 768px)').matches ? '0.15' : '0.30';
 updatePatternSize();
 updateGlassOpacity();
 updateBrightness();
