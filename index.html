@@ -1502,6 +1502,7 @@ let freqData = null;
 let audioEl = null;
 let audioSource = null;
 let bundledAudioPromise = null;
+let audioNeedsGesture = false;
 let micStream = null;
 let micSource = null;
 let micEnabled = false;
@@ -1975,6 +1976,34 @@ function updateSeekUi() {
   timeVal.textContent = fmtTime(audioEl.currentTime) + ' / ' + fmtTime(audioEl.duration);
 }
 
+function setAudioButtonState() {
+  if (!audioEl) return;
+  playPauseBtn.textContent = audioEl.paused ? 'Start music' : 'Pause music';
+}
+
+async function attemptAudioPlayback() {
+  if (!audioEl) return false;
+  try {
+    ensureAudio();
+    if (audioCtx.state === 'suspended') await audioCtx.resume();
+    await audioEl.play();
+    audioNeedsGesture = false;
+    setAudioButtonState();
+    updateSeekUi();
+    return true;
+  } catch (err) {
+    const blocked = err && (err.name === 'NotAllowedError' || /user.didn't.interact|user.*interact|gesture/i.test(err.message || ''));
+    if (blocked) {
+      audioNeedsGesture = true;
+      audioStatus.textContent = 'Music loaded. Tap Start music to play.';
+      setAudioButtonState();
+    } else {
+      audioStatus.textContent = 'Audio error: ' + (err && err.message ? err.message : 'playback failed');
+    }
+    return false;
+  }
+}
+
 async function loadAudioFile(file, { autoplay = true } = {}) {
   try {
     ensureAudio();
@@ -1989,7 +2018,7 @@ async function loadAudioFile(file, { autoplay = true } = {}) {
     }
     audioEl = new Audio(URL.createObjectURL(file));
     audioEl.loop = true;
-    audioEl.autoplay = autoplay;
+    audioEl.autoplay = false;
     audioEl.controls = false;
     audioEl.style.display = 'none';
     audioEl.addEventListener('loadedmetadata', updateSeekUi);
@@ -2002,7 +2031,7 @@ async function loadAudioFile(file, { autoplay = true } = {}) {
     audioStatus.textContent = 'Music loaded: ' + file.name;
     playPauseBtn.textContent = autoplay ? 'Pause music' : 'Start music';
     playPauseBtn.disabled = false;
-    if (autoplay) await audioEl.play();
+    if (autoplay) await attemptAudioPlayback();
   } catch (err) {
     audioStatus.textContent = 'Audio error: ' + (err && err.message ? err.message : 'playback failed');
     playPauseBtn.textContent = 'Start music';
@@ -2141,17 +2170,22 @@ playPauseBtn.addEventListener('click', async () => {
     await loadBundledAudio();
   }
   if (!audioEl) return;
-  ensureAudio();
   if (audioEl.paused) {
-    await audioEl.play();
-    playPauseBtn.textContent = 'Pause music';
-    updateSeekUi();
+    await attemptAudioPlayback();
   } else {
     audioEl.pause();
-    playPauseBtn.textContent = 'Start music';
+    setAudioButtonState();
     updateSeekUi();
   }
 });
+
+document.addEventListener('pointerdown', () => {
+  if (audioNeedsGesture) attemptAudioPlayback();
+}, { passive: true });
+
+document.addEventListener('keydown', () => {
+  if (audioNeedsGesture) attemptAudioPlayback();
+}, { passive: true });
 
 clearBtn.addEventListener('click', () => { trail = []; particles = []; render(performance.now()); });
 
